@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Firebase AI Assistant</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #000000 0%, #1a0a00 100%);
+            color: #fff;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .container {
+            max-width: 900px;
+            width: 95%;
+            margin: 20px auto;
+        }
+
+        h1 {
+            color: #ff6600;
+            text-align: center;
+            margin: 30px 0;
+            font-size: 3em;
+            text-shadow: 0 0 20px rgba(255, 102, 0, 0.5);
+            animation: glow 2s ease-in-out infinite;
+        }
+
+        @keyframes glow {
+            0%, 100% { text-shadow: 0 0 20px rgba(255, 102, 0, 0.5); }
+            50% { text-shadow: 0 0 30px rgba(255, 102, 0, 0.8), 0 0 40px rgba(255, 102, 0, 0.6); }
+        }
+
+        .subtitle {
+            text-align: center;
+            color: #999;
+            margin-bottom: 30px;
+            font-size: 1.1em;
+        }
+
+        .chat {
+            background: rgba(17, 17, 17, 0.9);
+            border: 2px solid rgba(255, 102, 0, 0.3);
+            border-radius: 20px;
+            padding: 25px;
+            margin: 20px 0;
+            min-height: 450px;
+            max-height: 60vh;
+            overflow-y: auto;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5),
+                        inset 0 0 30px rgba(255, 102, 0, 0.05);
+        }
+
+        .chat::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        .chat::-webkit-scrollbar-track {
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 10px;
+        }
+
+        .chat::-webkit-scrollbar-thumb {
+            background: linear-gradient(135deg, #ff6600, #ff8833);
+            border-radius: 10px;
+        }
+
+        .message {
+            margin: 20px 0;
+            padding: 15px 22px;
+            border-radius: 15px;
+            max-width: 75%;
+            animation: fadeInUp 0.4s ease;
+            word-wrap: break-word;
+            line-height: 1.5;
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(15px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .user {
+            background: linear-gradient(135deg, #ff6600 0%, #ff8833 100%);
+            margin-left: auto;
+            text-align: right;
+            box-shadow: 0 5px 20px rgba(255, 102, 0, 0.4);
+        }
+
+        .assistant {
+            background: rgba(34, 34, 34, 0.8);
+            border: 1px solid rgba(255, 102, 0, 0.3);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+        }
+
+        .input-area {
+            display: flex;
+            gap: 12px;
+            margin-top: 25px;
+            animation: slideUp 0.5s ease;
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        input {
+            flex: 1;
+            padding: 18px 25px;
+            background: rgba(34, 34, 34, 0.8);
+            border: 2px solid rgba(255, 102, 0, 0.4);
+            border-radius: 12px;
+            color: #fff;
+            font-size: 16px;
+            transition: all 0.3s ease;
+        }
+
+        input:focus {
+            outline: none;
+            border-color: #ff6600;
+            box-shadow: 0 0 20px rgba(255, 102, 0, 0.4);
+            background: rgba(34, 34, 34, 0.95);
+        }
+
+        input::placeholder {
+            color: #666;
+        }
+
+        button {
+            padding: 18px 40px;
+            background: linear-gradient(135deg, #ff6600 0%, #ff8833 100%);
+            border: none;
+            border-radius: 12px;
+            color: #fff;
+            font-weight: bold;
+            cursor: pointer;
+            font-size: 16px;
+            transition: all 0.3s ease;
+            box-shadow: 0 5px 20px rgba(255, 102, 0, 0.4);
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 30px rgba(255, 102, 0, 0.6);
+        }
+
+        button:active {
+            transform: translateY(0);
+        }
+
+        button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .typing {
+            display: flex;
+            gap: 6px;
+            padding: 10px;
+        }
+
+        .dot {
+            width: 10px;
+            height: 10px;
+            background: linear-gradient(135deg, #ff6600, #ff8833);
+            border-radius: 50%;
+            animation: bounce 1.4s infinite ease-in-out;
+        }
+
+        .dot:nth-child(1) { animation-delay: 0s; }
+        .dot:nth-child(2) { animation-delay: 0.2s; }
+        .dot:nth-child(3) { animation-delay: 0.4s; }
+
+        @keyframes bounce {
+            0%, 60%, 100% { transform: translateY(0); }
+            30% { transform: translateY(-12px); }
+        }
+
+        @media (max-width: 768px) {
+            h1 { font-size: 2em; }
+            .container { width: 98%; }
+            .message { max-width: 85%; }
+            input, button { font-size: 14px; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔥 Firebase AI</h1>
+        <p class="subtitle">Powered by intelligent flames</p>
+        
+        <div class="chat" id="chat">
+            <div class="message assistant">
+                Olá! Sou o Firebase AI. Como posso ajudá-lo hoje?
+            </div>
+        </div>
+        
+        <div class="input-area">
+            <input 
+                type="text" 
+                id="input" 
+                placeholder="Digite sua mensagem..."
+                autocomplete="off"
+            >
+            <button onclick="enviar()" id="btnEnviar">Enviar</button>
+        </div>
+    </div>
+
+    <script>
+        const chat = document.getElementById('chat');
+        const input = document.getElementById('input');
+        const btnEnviar = document.getElementById('btnEnviar');
+        
+        function addMsg(text, type) {
+            const msg = document.createElement('div');
+            msg.className = 'message ' + type;
+            msg.textContent = text;
+            chat.appendChild(msg);
+            chat.scrollTop = chat.scrollHeight;
+        }
+        
+        function addTyping() {
+            const typing = document.createElement('div');
+            typing.className = 'message assistant';
+            typing.id = 'typing';
+            typing.innerHTML = '<div class="typing"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div>';
+            chat.appendChild(typing);
+            chat.scrollTop = chat.scrollHeight;
+        }
+        
+        function removeTyping() {
+            const typing = document.getElementById('typing');
+            if (typing) typing.remove();
+        }
+        
+        async function enviar() {
+            const msg = input.value.trim();
+            if (!msg) return;
+            
+            input.value = '';
+            btnEnviar.disabled = true;
+            
+            addMsg(msg, 'user');
+            addTyping();
+            
+            try {
+                console.log('📤 Enviando:', msg);
+                
+                const res = await fetch('/perguntar', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({pergunta: msg})
+                });
+                
+                console.log('📥 Status:', res.status);
+                
+                const data = await res.json();
+                console.log('✅ Resposta:', data);
+                
+                removeTyping();
+                addMsg(data.resposta || '❌ Erro na resposta', 'assistant');
+                
+            } catch(e) {
+                console.error('❌ Erro:', e);
+                removeTyping();
+                addMsg('❌ Erro ao conectar: ' + e.message, 'assistant');
+            } finally {
+                btnEnviar.disabled = false;
+                input.focus();
+            }
+        }
+        
+        input.addEventListener('keypress', e => {
+            if(e.key === 'Enter') enviar();
+        });
+        
+        // Foco automático no input
+        input.focus();
+        
+        console.log('🔥 Firebase AI carregado!');
+    </script>
+</body>
+</html>
