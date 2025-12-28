@@ -1,0 +1,27 @@
+{
+  "name": "firebase-ai",
+  "version": "1.0.0",
+  "description": "Firebase AI Assistant com Telegram",
+  "main": "server.js",
+  "type": "module",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "keywords": [
+    "telegram",
+    "ai",
+    "firebase",
+    "chat"
+  ],
+  "author": "Você",
+  "license": "MIT",
+  "dependencies": {
+    "express": "^4.18.2",
+    "cors": "^2.8.5",
+    "telegram": "^2.19.7",
+    "input": "^1.0.1"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}
